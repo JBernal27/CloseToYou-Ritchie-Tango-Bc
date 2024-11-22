@@ -30,7 +30,6 @@ export class ContactController {
     @Request() req,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Contact> {
-    
     return await this.contactService.create(
       { ...contactData },
       req.user.id,

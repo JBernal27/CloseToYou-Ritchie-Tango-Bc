@@ -10,6 +10,7 @@ import { Contact } from './entities/contact.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { User } from 'src/users/entities/user.entity';
+import { UpdateContactDto } from './dto/update-contact.dto';
 
 @Injectable()
 export class ContactService {
@@ -26,10 +27,13 @@ export class ContactService {
     userId: number,
     file?: Express.Multer.File,
   ): Promise<Contact> {
-
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
-    const finalContactData: Partial<Contact> = {...contactData, image: undefined, user: user};
+    const finalContactData: Partial<Contact> = {
+      ...contactData,
+      image: undefined,
+      user: user,
+    };
 
     if (file) {
       try {
@@ -89,11 +93,14 @@ export class ContactService {
 
   async update(
     id: number,
-    contactData: Partial<Contact>,
+    contactData: UpdateContactDto,
     file?: Express.Multer.File,
   ): Promise<Contact> {
+    
     const contact = await this.findOne(id);
-
+  
+    const finalContactData: Partial<Contact> = { ...contact, ...contactData, image: contact.image };
+  
     if (file) {
       if (contact.image) {
         const publicId = this.extractPublicId(contact.image);
@@ -105,23 +112,32 @@ export class ContactService {
           );
         }
       }
-
+  
       try {
         const uploadResult = await this.cloudinaryService.uploadImage(file);
-        contactData.image = uploadResult.secure_url;
+        finalContactData.image = uploadResult.secure_url;
       } catch (error) {
         throw new InternalServerErrorException(
           'Error al subir la nueva imagen a Cloudinary',
         );
       }
     }
-
-    this.contactRepository.merge(contact, contactData);
+  
+    if (contactData.email) {
+      finalContactData.email = contactData.email.toLowerCase().trim();
+    }
+  
+    if (contactData.latitude && contactData.longitude) {
+      finalContactData.location = {
+        latitude: +contactData.latitude,
+        longitude: +contactData.longitude,
+      };
+    }
+  
     try {
-      return await this.contactRepository.save(contact);
+      return await this.contactRepository.save(finalContactData);
     } catch (error) {
       if (error.code === '23505') {
-        // Error de duplicación en bases de datos PostgreSQL
         throw new ConflictException(
           'Ya existe un contacto con el mismo número o correo. Por favor, utilice valores diferentes.',
         );
@@ -131,6 +147,7 @@ export class ContactService {
       );
     }
   }
+  
 
   async delete(id: number): Promise<void> {
     const contact = await this.findOne(id);
