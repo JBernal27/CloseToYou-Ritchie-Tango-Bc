@@ -43,11 +43,11 @@ export class ContactService {
     }
 
     contactData.email = contactData.email.toLowerCase().trim();
-    // contactData.location.latitude = +contactData.location.latitude;
-    // contactData.location.longitude = +contactData.location.longitude;
+    contactData.location.latitude = +contactData.location.latitude;
+    contactData.location.longitude = +contactData.location.longitude;
 
     try {
-      const contact = this.contactRepository.create({...contactData, location: { latitude: -64, longitude: 40 }});
+      const contact = this.contactRepository.create(contactData);
       return await this.contactRepository.save(contact);
     } catch (error) {
       throw new InternalServerErrorException(

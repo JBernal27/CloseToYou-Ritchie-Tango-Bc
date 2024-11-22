@@ -29,8 +29,6 @@ export class ContactController {
     @Request() req,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Contact> {
-    console.log(contactData);
-    console.log(file);
     
     return await this.contactService.create(
       { ...contactData, user: req.user.id },

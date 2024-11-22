@@ -28,7 +28,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiDocLogin()
   async signIn(@Body() signInDto: LoginDto) {
-    console.log('entrando');
     return this.authService.login({
       email: signInDto.email,
       password: signInDto.password,
