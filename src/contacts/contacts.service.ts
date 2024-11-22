@@ -9,12 +9,15 @@ import { Repository } from 'typeorm';
 import { Contact } from './entities/contact.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CreateContactDto } from './dto/create-contact.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ContactService {
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -24,7 +27,9 @@ export class ContactService {
     file?: Express.Multer.File,
   ): Promise<Contact> {
 
-    const finalContactData: Partial<Contact> = {...contactData, image: undefined};
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    const finalContactData: Partial<Contact> = {...contactData, image: undefined, user: user};
 
     if (file) {
       try {

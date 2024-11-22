@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ContactService } from './contacts.service';
 import { Contact } from './entities/contact.entity';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { CreateContactDto } from './dto/create-contact.dto';
 
 @Controller('contacts')
 @UseGuards(AuthGuard)
@@ -25,13 +26,13 @@ export class ContactController {
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async create(
-    @Body() contactData: Partial<Contact>,
+    @Body() contactData: CreateContactDto,
     @Request() req,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Contact> {
     
     return await this.contactService.create(
-      { ...contactData, user: req.user.id },
+      { ...contactData, image: undefined },
       req.user.id,
       file,
     );
