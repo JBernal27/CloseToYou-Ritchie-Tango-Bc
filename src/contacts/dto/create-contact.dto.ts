@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -35,8 +36,11 @@ export class CreateContactDto {
   @IsEnum(Roles)
   role: Roles;
 
-  // @IsNotEmpty()
-  @IsOptional()
-  @Type(() => Object)
-  location: LatLng;
+  @IsNotEmpty()
+  @IsNumber()
+  latitude: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  longitude: number;
 }

@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contact } from './entities/contact.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CreateContactDto } from './dto/create-contact.dto';
 
 @Injectable()
 export class ContactService {
@@ -18,14 +19,17 @@ export class ContactService {
   ) {}
 
   async create(
-    contactData: Partial<Contact>,
+    contactData: CreateContactDto,
     userId: number,
     file?: Express.Multer.File,
   ): Promise<Contact> {
+
+    const finalContactData: Partial<Contact> = {...contactData, image: undefined};
+
     if (file) {
       try {
         const uploadResult = await this.cloudinaryService.uploadImage(file);
-        contactData.image = uploadResult.secure_url;
+        finalContactData.image = uploadResult.secure_url;
       } catch (error) {
         throw new InternalServerErrorException(
           'Error al subir la imagen a Cloudinary',
@@ -43,11 +47,14 @@ export class ContactService {
     }
 
     contactData.email = contactData.email.toLowerCase().trim();
-    contactData.location.latitude = +contactData.location.latitude;
-    contactData.location.longitude = +contactData.location.longitude;
+
+    finalContactData.location = {
+      latitude: contactData.latitude,
+      longitude: contactData.longitude,
+    };
 
     try {
-      const contact = this.contactRepository.create(contactData);
+      const contact = this.contactRepository.create(finalContactData);
       return await this.contactRepository.save(contact);
     } catch (error) {
       throw new InternalServerErrorException(
