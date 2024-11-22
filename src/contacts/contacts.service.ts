@@ -54,8 +54,8 @@ export class ContactService {
     contactData.email = contactData.email.toLowerCase().trim();
 
     finalContactData.location = {
-      latitude: contactData.latitude,
-      longitude: contactData.longitude,
+      latitude: +contactData.latitude,
+      longitude: +contactData.longitude,
     };
 
     try {
