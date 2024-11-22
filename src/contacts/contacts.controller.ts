@@ -32,7 +32,7 @@ export class ContactController {
   ): Promise<Contact> {
     
     return await this.contactService.create(
-      { ...contactData, image: undefined },
+      { ...contactData },
       req.user.id,
       file,
     );
