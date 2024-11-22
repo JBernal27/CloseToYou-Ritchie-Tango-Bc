@@ -28,10 +28,6 @@ export class CreateContactDto {
   @IsBoolean()
   isFavorite?: boolean;
 
-  @IsOptional()
-  @Type(() => File)
-  image?: File;
-
   @IsNotEmpty()
   @IsEnum(Roles)
   role: Roles;
