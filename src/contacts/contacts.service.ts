@@ -33,7 +33,7 @@ export class ContactService {
       ...contactData,
       image: undefined,
       user: user,
-      isFavorite: contactData.isFavorite ?? false, // Asegura que isFavorite sea asignado correctamente
+      isFavorite: contactData.isFavorite === 'true' ? true : false,
     };
 
     if (file) {
@@ -103,10 +103,12 @@ export class ContactService {
       ...contact,
       ...contactData,
       image: contact.image,
+      isFavorite: false,
     };
 
     if (contactData.isFavorite !== undefined) {
-      finalContactData.isFavorite = contactData.isFavorite; // Asignar el valor de isFavorite si se pasa
+      finalContactData.isFavorite =
+        contactData.isFavorite === 'true' ? true : false;
     }
 
     if (file) {

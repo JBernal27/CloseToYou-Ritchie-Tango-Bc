@@ -25,8 +25,8 @@ export class CreateContactDto {
   email?: string;
 
   @IsOptional()
-  @IsBoolean()
-  isFavorite?: boolean;
+  @IsString()
+  isFavorite?: string;
 
   @IsNotEmpty()
   @IsEnum(Roles)

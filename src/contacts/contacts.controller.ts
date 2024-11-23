@@ -17,6 +17,7 @@ import { ContactService } from './contacts.service';
 import { Contact } from './entities/contact.entity';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CreateContactDto } from './dto/create-contact.dto';
+import { UpdateContactDto } from './dto/update-contact.dto';
 
 @Controller('contacts')
 @UseGuards(AuthGuard)
@@ -56,7 +57,7 @@ export class ContactController {
   @UseInterceptors(FileInterceptor('image'))
   async update(
     @Param('id') id: number,
-    @Body() contactData: Partial<Contact>,
+    @Body() contactData: UpdateContactDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Contact> {
     return await this.contactService.update(id, contactData, file);
