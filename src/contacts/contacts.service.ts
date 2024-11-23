@@ -33,6 +33,7 @@ export class ContactService {
       ...contactData,
       image: undefined,
       user: user,
+      isFavorite: contactData.isFavorite ?? false, // Asegura que isFavorite sea asignado correctamente
     };
 
     if (file) {
@@ -96,11 +97,18 @@ export class ContactService {
     contactData: UpdateContactDto,
     file?: Express.Multer.File,
   ): Promise<Contact> {
-    
     const contact = await this.findOne(id);
-  
-    const finalContactData: Partial<Contact> = { ...contact, ...contactData, image: contact.image };
-  
+
+    const finalContactData: Partial<Contact> = {
+      ...contact,
+      ...contactData,
+      image: contact.image,
+    };
+
+    if (contactData.isFavorite !== undefined) {
+      finalContactData.isFavorite = contactData.isFavorite; // Asignar el valor de isFavorite si se pasa
+    }
+
     if (file) {
       if (contact.image) {
         const publicId = this.extractPublicId(contact.image);
@@ -112,7 +120,7 @@ export class ContactService {
           );
         }
       }
-  
+
       try {
         const uploadResult = await this.cloudinaryService.uploadImage(file);
         finalContactData.image = uploadResult.secure_url;
@@ -122,18 +130,18 @@ export class ContactService {
         );
       }
     }
-  
+
     if (contactData.email) {
       finalContactData.email = contactData.email.toLowerCase().trim();
     }
-  
+
     if (contactData.latitude && contactData.longitude) {
       finalContactData.location = {
         latitude: +contactData.latitude,
         longitude: +contactData.longitude,
       };
     }
-  
+
     try {
       return await this.contactRepository.save(finalContactData);
     } catch (error) {
@@ -147,7 +155,6 @@ export class ContactService {
       );
     }
   }
-  
 
   async delete(id: number): Promise<void> {
     const contact = await this.findOne(id);

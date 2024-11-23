@@ -1,4 +1,3 @@
-// src/entities/contact.entity.ts
 import {
   Entity,
   Column,
